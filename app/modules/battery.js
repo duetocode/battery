@@ -66,6 +66,20 @@ const exec_sudo_async = command => new Promise( ( resolve, reject ) => {
 const get_battery_status = async () => {
 
     try {
+        const cli_available = await exec_async( `${ path_fix } which battery` ).then( () => true ).catch( () => false )
+        if( !cli_available ) {
+            log( 'Battery CLI not yet installed, returning placeholder status' )
+            return {
+                percentage: 0,
+                remaining: 'unknown',
+                charging: false,
+                discharging: false,
+                maintain_percentage: undefined,
+                battery_state: 'Battery CLI not installed',
+                daemon_state: 'installation pending'
+            }
+        }
+
         const message = await exec_async( `${ battery } status_csv` )
         let [ percentage='??', remaining='', charging='', discharging='', maintain_percentage='' ] = message?.split( ',' ) || []
         maintain_percentage = maintain_percentage.trim()
