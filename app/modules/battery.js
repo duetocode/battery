@@ -4,11 +4,22 @@ const { exec } = require( 'node:child_process' )
 const { log, alert, wait, confirm } = require( './helpers' )
 const { get_force_discharge_setting } = require( './settings' )
 const { USER } = process.env
+const repo_env = {
+    BATTERY_REPO_OWNER: process.env.BATTERY_REPO_OWNER || 'actuallymentor',
+    BATTERY_REPO_NAME: process.env.BATTERY_REPO_NAME || 'battery',
+    BATTERY_REPO_BRANCH: process.env.BATTERY_REPO_BRANCH || 'main'
+}
+const repo_env_export = Object.entries( repo_env ).map( ( [ key, value ] ) => `${ key }=${ value }` ).join( ' ' )
+const raw_base_url = `https://raw.githubusercontent.com/${ repo_env.BATTERY_REPO_OWNER }/${ repo_env.BATTERY_REPO_NAME }/${ repo_env.BATTERY_REPO_BRANCH }`
 const path_fix = 'PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 const battery = `${ path_fix } battery`
 const shell_options = {
     shell: '/bin/bash',
-    env: { ...process.env, PATH: `${ process.env.PATH }:/usr/local/bin` }
+    env: {
+        ...process.env,
+        ...repo_env,
+        PATH: `${ process.env.PATH || '' }:/usr/local/bin`
+    }
 }
 
 // Execute without sudo
@@ -180,7 +191,7 @@ const initialize_battery = async () => {
             log( `Installing battery for ${ USER }...` )
             if( !online ) return alert( `Battery needs an internet connection to download the latest version, please connect to the internet and open the app again.` )
             if( !is_installed ) await alert( `Welcome to the Battery limiting tool. The app needs to install/update some components, so it will ask for your password. This should only be needed once.` )
-            const result = await exec_sudo_async( `curl -s https://raw.githubusercontent.com/actuallymentor/battery/main/setup.sh | bash -s -- $USER` )
+            const result = await exec_sudo_async( `curl -s "${ raw_base_url }/setup.sh" | env ${ repo_env_export } bash -s -- ${ USER }` )
             log( `Install result success `, result )
             await alert( `Battery background components installed successfully. You can find the battery limiter icon in the top right of your menu bar.` )
         }

@@ -6,6 +6,7 @@
 ## ###############
 BATTERY_CLI_VERSION="v1.2.7"
 
+
 # Path fixes for unexpected environments
 PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -22,6 +23,18 @@ maintain_percentage_tracker_file=$configfolder/maintain.percentage
 maintain_voltage_tracker_file=$configfolder/maintain.voltage
 daemon_path=$HOME/Library/LaunchAgents/battery.plist
 calibrate_pidfile=$configfolder/calibrate.pid
+repo_config_file=$configfolder/repo.conf
+
+if [ -f "$repo_config_file" ]; then
+	. "$repo_config_file"
+fi
+
+: "${BATTERY_REPO_OWNER:=actuallymentor}"
+: "${BATTERY_REPO_NAME:=battery}"
+: "${BATTERY_REPO_BRANCH:=main}"
+
+export BATTERY_REPO_OWNER BATTERY_REPO_NAME BATTERY_REPO_BRANCH
+RAW_BASE_URL="https://raw.githubusercontent.com/${BATTERY_REPO_OWNER}/${BATTERY_REPO_NAME}/${BATTERY_REPO_BRANCH}"
 
 # Voltage limits
 voltage_min="10.5"
@@ -458,12 +471,12 @@ fi
 
 # Reinstall helper
 if [[ "$action" == "reinstall" ]]; then
-	echo "This will run curl -sS https://raw.githubusercontent.com/actuallymentor/battery/main/setup.sh | bash"
+	echo "This will run curl -sS ${RAW_BASE_URL}/setup.sh | bash"
 	if [[ ! "$setting" == "silent" ]]; then
 		echo "Press any key to continue"
 		read
 	fi
-	curl -sS https://raw.githubusercontent.com/actuallymentor/battery/main/setup.sh | bash
+	curl -sS "${RAW_BASE_URL}/setup.sh" | bash
 	exit 0
 fi
 
@@ -471,15 +484,15 @@ fi
 if [[ "$action" == "update" ]]; then
 
 	# Check if we have the most recent version
-	if curl -sS https://raw.githubusercontent.com/actuallymentor/battery/main/battery.sh | grep -q "$BATTERY_CLI_VERSION"; then
+	if curl -sS "${RAW_BASE_URL}/battery.sh" | grep -q "$BATTERY_CLI_VERSION"; then
 		echo "No need to update, offline version number $BATTERY_CLI_VERSION matches remote version number"
 	else
-		echo "This will run curl -sS https://raw.githubusercontent.com/actuallymentor/battery/main/update.sh | bash"
+		echo "This will run curl -sS ${RAW_BASE_URL}/update.sh | bash"
 		if [[ ! "$setting" == "silent" ]]; then
 			echo "Press any key to continue"
 			read
 		fi
-		curl -sS https://raw.githubusercontent.com/actuallymentor/battery/main/update.sh | bash
+		curl -sS "${RAW_BASE_URL}/update.sh" | bash
 	fi
 	exit 0
 fi

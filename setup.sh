@@ -14,6 +14,16 @@ mkdir -p $tempfolder
 # Set script value
 calling_user=${1:-"$USER"}
 configfolder=/Users/$calling_user/.battery
+repo_config_file=$configfolder/repo.conf
+
+if [ -f "$repo_config_file" ]; then
+	. "$repo_config_file"
+fi
+
+repo_owner=${BATTERY_REPO_OWNER:-actuallymentor}
+repo_name=${BATTERY_REPO_NAME:-battery}
+update_branch=${BATTERY_REPO_BRANCH:-main}
+archive_branch_name=${update_branch//\//-}
 pidfile=$configfolder/battery.pid
 logfile=$configfolder/battery.log
 
@@ -22,13 +32,12 @@ sudo echo "🔋 Starting battery installation"
 echo -e "[ 1 ] Superuser permissions acquired."
 
 # Note: github names zips by <reponame>-<branchname>.replace( '/', '-' )
-update_branch="main"
-in_zip_folder_name="battery-$update_branch"
+in_zip_folder_name="$repo_name-$archive_branch_name"
 batteryfolder="$tempfolder/battery"
 echo "[ 2 ] Downloading latest version of battery CLI"
 rm -rf $batteryfolder
 mkdir -p $batteryfolder
-curl -sSL -o $batteryfolder/repo.zip "https://github.com/actuallymentor/battery/archive/refs/heads/$update_branch.zip"
+curl -sSL -o $batteryfolder/repo.zip "https://github.com/$repo_owner/$repo_name/archive/refs/heads/$update_branch.zip"
 unzip -qq $batteryfolder/repo.zip -d $batteryfolder
 cp -r $batteryfolder/$in_zip_folder_name/* $batteryfolder
 rm $batteryfolder/repo.zip
@@ -67,6 +76,13 @@ sudo chown $calling_user $binfolder/battery
 echo "[ 6 ] Setting up visudo declarations"
 sudo $batteryfolder/battery.sh visudo $USER
 sudo chown -R $calling_user $configfolder
+
+cat <<EOF > $repo_config_file
+BATTERY_REPO_OWNER=$repo_owner
+BATTERY_REPO_NAME=$repo_name
+BATTERY_REPO_BRANCH=$update_branch
+EOF
+chmod 600 $repo_config_file
 
 # Remove tempfiles
 cd ../..

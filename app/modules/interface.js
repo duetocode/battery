@@ -3,6 +3,7 @@ const { enable_battery_limiter, disable_battery_limiter, initialize_battery, is_
 const { log } = require( "./helpers" )
 const { get_logo_template } = require( './theme' )
 const { get_force_discharge_setting, update_force_discharge_setting } = require( './settings' )
+const repo_base_url = `https://github.com/${ process.env.BATTERY_REPO_OWNER || 'actuallymentor' }/${ process.env.BATTERY_REPO_NAME || 'battery' }`
 
 /* ///////////////////////////////
 // Menu helpers
@@ -75,7 +76,7 @@ const generate_app_menu = async () => {
                 submenu: [
                     {
                         label: `Check for updates`,
-                        click: () => shell.openExternal( `https://github.com/actuallymentor/battery/releases` )
+                        click: () => shell.openExternal( `${ repo_base_url }/releases` )
                     },
                     {
                         type: 'normal',
@@ -92,17 +93,17 @@ const generate_app_menu = async () => {
                     },
                     {
                         label: `User manual`,
-                        click: () => shell.openExternal( `https://github.com/actuallymentor/battery#readme` )
+                        click: () => shell.openExternal( `${ repo_base_url }#readme` )
                     },
                     {
                         type: 'normal',
                         label: 'Command-line usage',
-                        click: () => shell.openExternal( `https://github.com/actuallymentor/battery#-command-line-version` )
+                        click: () => shell.openExternal( `${ repo_base_url }#-command-line-version` )
                     },
                     {
                         type: 'normal',
                         label: 'Help and feature requests',
-                        click: () => shell.openExternal( `https://github.com/actuallymentor/battery/issues` )
+                        click: () => shell.openExternal( `${ repo_base_url }/issues` )
                     }
                 ]
             },
