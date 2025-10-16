@@ -26,6 +26,7 @@
     }
   },
   "scripts": {
+    "prebuild": "node ./scripts/writeRepoConfig.js",
     "start": "development=true electron .",
     "start:watch": "nodemon --watch . --exec 'skipupdate=true development=true electron .'",
     "build": "rm -rf ./dist/* && electron-builder build --mac --arm64",

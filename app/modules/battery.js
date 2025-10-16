@@ -3,11 +3,12 @@ const { app } = require( 'electron' )
 const { exec } = require( 'node:child_process' )
 const { log, alert, wait, confirm } = require( './helpers' )
 const { get_force_discharge_setting } = require( './settings' )
+const repo_config = require( './repoConfig' )
 const { USER } = process.env
 const repo_env = {
-    BATTERY_REPO_OWNER: process.env.BATTERY_REPO_OWNER || 'actuallymentor',
-    BATTERY_REPO_NAME: process.env.BATTERY_REPO_NAME || 'battery',
-    BATTERY_REPO_BRANCH: process.env.BATTERY_REPO_BRANCH || 'main'
+    BATTERY_REPO_OWNER: repo_config.owner,
+    BATTERY_REPO_NAME: repo_config.name,
+    BATTERY_REPO_BRANCH: repo_config.branch
 }
 const repo_env_export = Object.entries( repo_env ).map( ( [ key, value ] ) => `${ key }=${ value }` ).join( ' ' )
 const raw_base_url = `https://raw.githubusercontent.com/${ repo_env.BATTERY_REPO_OWNER }/${ repo_env.BATTERY_REPO_NAME }/${ repo_env.BATTERY_REPO_BRANCH }`
