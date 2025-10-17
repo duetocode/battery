@@ -17,7 +17,7 @@ const generate_app_menu = async () => {
 
     try {
         // Get battery and daemon status
-        const { battery_state, daemon_state, maintain_percentage = 70, percentage } = await get_battery_status()
+        const { battery_state, daemon_state, maintain_percentage = 80, percentage } = await get_battery_status()
 
         // Check if limiter is on
         const limiter_on = await is_limiter_enabled()
